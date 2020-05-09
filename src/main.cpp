@@ -48,9 +48,28 @@ int main() {
 	
 	
 	
-	// Vulkan Renderer is ready, you may have render loops here
 	
 	
+		#define TEST_BUFFER_ALLOC(type, size) {\
+			auto timer = v4d::Timer(true);\
+			Buffer testBuffer {VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, size_t(size)*1024*1024};\
+			testBuffer.Allocate(renderer->renderingDevice, VK_MEMORY_PROPERTY_ ## type ## _BIT);\
+			double allocTime = timer.GetElapsedMilliseconds();\
+			timer.Reset();\
+			testBuffer.Free(renderer->renderingDevice);\
+			LOG("" << # type << " " << size << " mb Allocated in " << allocTime << " ms, Freed in " << timer.GetElapsedMilliseconds() << " ms")\
+		}
+		
+		TEST_BUFFER_ALLOC(HOST_COHERENT, 512)
+		TEST_BUFFER_ALLOC(HOST_COHERENT, 1024)
+		TEST_BUFFER_ALLOC(HOST_COHERENT, 2048)
+		TEST_BUFFER_ALLOC(HOST_CACHED, 512)
+		TEST_BUFFER_ALLOC(HOST_CACHED, 1024)
+		TEST_BUFFER_ALLOC(HOST_CACHED, 2048)
+		TEST_BUFFER_ALLOC(DEVICE_LOCAL, 512)
+		TEST_BUFFER_ALLOC(DEVICE_LOCAL, 1024)
+		TEST_BUFFER_ALLOC(DEVICE_LOCAL, 2048)
+		
 	
 	
 	
