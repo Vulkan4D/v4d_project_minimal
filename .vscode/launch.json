@@ -1,0 +1,88 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Demo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/demo",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/debug",
+            "environment": [
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "quick build"
+        },
+        {
+            "name": "Debug Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/tests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/debug",
+            "environment": [
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "quick build"
+        },
+        
+        // {
+        //     "name": "Debug Demo Windows",
+        //     "type": "gdb",
+        //     "request": "launch",
+        //     "target": "/v4d_build/debug/demo.exe",
+        //     "cwd": "${workspaceRoot}",
+        //     "ssh": {
+        //         "host": "WINDOWS_PC",
+        //         "cwd": "/v4d_build/debug/",
+        //         "keyfile": "/home/olivier/.ssh/id_rsa",
+        //         "user": "olivier"
+        //     },
+        //     "valuesFormatting": "parseText",
+        //     "preLaunchTask": "quick build windows"
+        // },
+        
+        // {
+        //     "type": "gdb",
+        //     "request": "attach",
+        //     "name": "Debug Demo Windows",
+        //     "executable": "demo.exe",
+        //     "target": "PCWIN10:2000",
+        //     "remote": true,
+        //     "cwd": "${workspaceFolder}/build/debug",
+        //     "gdbpath": "x86_64-w64-mingw32-gdb",
+        //     // "preLaunchTask": "quick build windows"
+        // }
+        
+        // {
+        //     "name": "Demo Windows",
+        //     "type": "gdb",
+        //     "request": "launch",
+        //     "target": "${workspaceFolder}/crosscompile/windows/run.sh debug demo",
+        //     "cwd": "${workspaceFolder}/build/debug",
+        //     "preLaunchTask": "quick build windows"
+        // },
+        
+    ]
+}

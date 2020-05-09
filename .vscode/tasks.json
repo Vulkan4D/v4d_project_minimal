@@ -1,0 +1,83 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "quick build",
+            "type": "shell",
+            "command": "clear; cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . --parallel 8",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
+            "label": "quick build windows & run remotely",
+            "type": "shell",
+            "command": "clear; cd build && ../crosscompile/windows/build.sh Debug && ../crosscompile/windows/run.sh debug demo",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "cmake reset",
+            "type": "shell",
+            "command": "clear; cd build && rm -f CMakeCache.txt debug/tests debug/demo;",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
+            "label": "clean build all shaders",
+            "type": "shell",
+            "command": "clear; cd build && rm -f CMakeCache.txt ; find . -type d -name 'shaders' | xargs rm -rf ; cmake .. -DCMAKE_BUILD_TYPE=Debug ; make shaders -j8;",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
+            "label": "clean build current platform",
+            "type": "shell",
+            "command": "clear; tools/cleanbuild.sh",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
+            "label": "clean build all platforms",
+            "type": "shell",
+            "command": "clear; tools/cleanbuild.sh windows",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
+            "label": "unit tests linux",
+            "type": "shell",
+            "command": "clear; cd build && rm -f CMakeCache.txt && cmake .. -DCMAKE_BUILD_TYPE=Debug && cmake --build . --parallel 8 && cd debug && ./tests",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "unit tests windows",
+            "type": "shell",
+            "command": "clear; cd build && rm -f CMakeCache.txt && ../crosscompile/windows/build.sh Debug && ssh WINDOWS_PC \"START /wait taskkill /f /im tests.exe\" && scp -rq debug/* WINDOWS_PC:/v4d_build/debug/ && ssh WINDOWS_PC \"cd /v4d_build/debug/ && tests.exe\"",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "send package",
+            "type": "shell",
+            "command": "clear; workspace/sendPackage.sh debug",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "send package (release)",
+            "type": "shell",
+            "command": "clear; workspace/sendPackage.sh release",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "Profile demo",
+            "type": "shell",
+            "command": "clear; cd build/debug; rm callgrind.out.*; valgrind --tool=callgrind ./demo; kcachegrind `ls callgrind.out.*`",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+        },
+    ]
+}
