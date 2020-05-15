@@ -1,8 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
-###########################################################################################
 
-project(v4d_demo_project)
-set(APP_NAME demo)
+# Vulkan4D Minimal Project Build Template 0.2
+###########################################################################################
+# Project Setup
+
+	project(v4d_minimal_project)
+	set(APP_NAME demo)
+
+###########################################################################################
+# Configuration
+
+# Options
+option(COMPILE_APP "Build Demo/Project" ON)
 option(COMPILE_GLFW "Compile GLFW from source instead of linking with installed library" ON)
 option(COMPILE_V4D_CORE "Compile Vulkan4D Core library from source" ON)
 option(COMPILE_V4D_MODULES "Compile all Vulkan4D Modules from source" ON)
@@ -17,35 +26,39 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Platforms
+###########################################################################################
+
+# Platform settings
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 if(WIN32)
 	add_definitions(-D_WINDOWS -D_WIN32_WINNT=0x06030000)
+	set(BUILD_FLAGS "-W -Wno-cast-function-type")
 else()
 	add_definitions(-D_LINUX)
 	# Warnings		https://gcc.gnu.org/onlinedocs/gcc-9.2.0/gcc/Warning-Options.html
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnull-dereference")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpessimizing-move")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wredundant-move")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wdisabled-optimization")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-conversion")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion")
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-conversion")
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
+	set(BUILD_FLAGS "-Wall")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -fmax-errors=1")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wfatal-errors")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wextra")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wunused")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wnon-virtual-dtor")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wcast-align")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Woverloaded-virtual")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wnull-dereference")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wpessimizing-move")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wredundant-move")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wlogical-op")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wdisabled-optimization")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wfloat-conversion")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unused-parameter")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-sign-compare")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unknown-pragmas")
+	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wconversion")
+	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wsign-conversion")
+	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wshadow")
 endif()
 
+# Address Sanitizer
 if(ADDRESS_SANITIZER)
 	if(WIN32)
 	else()
@@ -68,8 +81,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/release")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/release")
 set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
 set(CMAKE_SHARED_MODULE_PREFIX_CXX "")
+SET(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
+SET(CMAKE_MINSIZEREL_POSTFIX "" CACHE STRING "" FORCE)
+SET(CMAKE_RELWITHDEBINFO_POSTFIX "" CACHE STRING "" FORCE)
 
-# Config-specific
+# Release / Debug
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 	set(DEBUG 1)
 	set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
@@ -81,8 +97,14 @@ else()
 endif()
 
 
-# glfw
+###########################################################################################
+# Builds
+
+
+# GLFW
 if(COMPILE_GLFW)
+	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -110,26 +132,21 @@ if(COMPILE_ASSETS)
 endif()
 
 
-# Project
-add_executable(${APP_NAME}
-	"${PROJECT_SOURCE_DIR}/src/main.cpp"
-)
-target_link_libraries(${APP_NAME}
-	v4d
-)
-target_compile_definitions(${APP_NAME}
-	PRIVATE -D_V4D_PROJECT
-)
-
-
-# Tests
-add_executable(tests
-	"${PROJECT_SOURCE_DIR}/src/tests.cxx"
-)
-target_link_libraries(tests
-	v4d
-)
-target_compile_definitions(tests
-	PRIVATE -D_V4D_PROJECT
-)
+# Demo / Project
+if(COMPILE_APP)
+	add_executable(${APP_NAME}
+		"${PROJECT_SOURCE_DIR}/src/main.cpp"
+	)
+	target_link_libraries(${APP_NAME}
+		v4d
+	)
+	target_compile_definitions(${APP_NAME}
+		PRIVATE -D_V4D_PROJECT
+	)
+	set_target_properties(${APP_NAME}
+		PROPERTIES 
+			COMPILE_FLAGS ${BUILD_FLAGS}
+			LINK_FLAGS "-Wl,-rpath,./"
+	)
+endif()
 
