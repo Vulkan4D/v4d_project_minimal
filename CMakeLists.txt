@@ -19,8 +19,6 @@ option(COMPILE_ASSETS "Compile all assets" ON)
 option(USE_CCACHE "Use ccache" ON)
 option(ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
 
-###########################################################################################
-
 # Global specs
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)

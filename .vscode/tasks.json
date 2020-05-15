@@ -11,13 +11,6 @@
             "group": "build"
         },
         {
-            "label": "quick build windows & run remotely",
-            "type": "shell",
-            "command": "clear; cd build && ../crosscompile/windows/build.sh Debug && ../crosscompile/windows/run.sh debug demo",
-            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
-            "group": "test"
-        },
-        {
             "label": "cmake reset",
             "type": "shell",
             "command": "clear; cd build && rm -f CMakeCache.txt debug/tests debug/demo;",
@@ -56,20 +49,6 @@
             "label": "unit tests windows",
             "type": "shell",
             "command": "clear; cd build && rm -f CMakeCache.txt && ../crosscompile/windows/build.sh Debug && ssh WINDOWS_PC \"START /wait taskkill /f /im tests.exe\" && scp -rq debug/* WINDOWS_PC:/v4d_build/debug/ && ssh WINDOWS_PC \"cd /v4d_build/debug/ && tests.exe\"",
-            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
-            "group": "test"
-        },
-        {
-            "label": "send package",
-            "type": "shell",
-            "command": "clear; workspace/sendPackage.sh debug",
-            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
-            "group": "test"
-        },
-        {
-            "label": "send package (release)",
-            "type": "shell",
-            "command": "clear; workspace/sendPackage.sh release",
             "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
             "group": "test"
         },
