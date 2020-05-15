@@ -12,6 +12,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # Options
 option(COMPILE_APP "Build Demo/Project" ON)
+option(COMPILE_TESTS "Build Unit Tests" ON)
 option(COMPILE_GLFW "Compile GLFW from source instead of linking with installed library" ON)
 option(COMPILE_V4D_CORE "Compile Vulkan4D Core library from source" ON)
 option(COMPILE_V4D_MODULES "Compile all Vulkan4D Modules from source" ON)
@@ -148,3 +149,21 @@ if(COMPILE_APP)
 	)
 endif()
 
+
+# Unit Tests
+if(COMPILE_TESTS)
+	add_executable(tests
+		"${PROJECT_SOURCE_DIR}/src/tests.cxx"
+	)
+	target_link_libraries(tests
+		v4d
+	)
+	target_compile_definitions(tests
+		PRIVATE -D_V4D_PROJECT
+	)
+	set_target_properties(tests 
+		PROPERTIES 
+			COMPILE_FLAGS ${BUILD_FLAGS}
+			LINK_FLAGS "-Wl,-rpath,./"
+	)
+endif()
