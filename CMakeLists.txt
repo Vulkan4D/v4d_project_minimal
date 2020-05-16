@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Vulkan4D Minimal Project Build Template 0.2
+# Vulkan4D Minimal Project Build Template 0.3
 ###########################################################################################
 # Project Setup
 
@@ -133,8 +133,9 @@ endif()
 
 # Demo / Project
 if(COMPILE_APP)
+	file(GLOB V4DProjectSourceFiles "${PROJECT_SOURCE_DIR}/src/*.cpp")
 	add_executable(${APP_NAME}
-		"${PROJECT_SOURCE_DIR}/src/main.cpp"
+		"${V4DProjectSourceFiles}"
 	)
 	target_link_libraries(${APP_NAME}
 		v4d
