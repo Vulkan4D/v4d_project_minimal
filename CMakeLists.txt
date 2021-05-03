@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Vulkan4D Minimal Project Build Template 0.3
+# Vulkan4D Project Build Template 0.6
 ###########################################################################################
 # Project Setup
 
-	project(v4d_minimal_project)
+	project(v4d_demo_project)
 	set(APP_NAME demo)
 
 ###########################################################################################
@@ -20,22 +20,18 @@ option(COMPILE_ASSETS "Compile all assets" ON)
 option(USE_CCACHE "Use ccache" ON)
 option(ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
 
-# Global specs
-enable_language(CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Load Global CMAKE configuration
+set(V4D_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(V4D_PROJECT_BUILD_DIR "${V4D_PROJECT_DIR}/build")
+include("${V4D_PROJECT_DIR}/src/v4d/core/global_build_config.cmake")
 
-###########################################################################################
-
-# Platform settings
-set(CMAKE_SYSTEM_PROCESSOR x86_64)
+# Compiler Warnings
 if(WIN32)
-	add_definitions(-D_WINDOWS -D_WIN32_WINNT=0x06030000)
-	set(BUILD_FLAGS "-W -Wno-cast-function-type")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -W -Wno-cast-function-type")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -W -Wno-attribute-warning")
 else()
-	add_definitions(-D_LINUX)
 	# Warnings		https://gcc.gnu.org/onlinedocs/gcc-9.2.0/gcc/Warning-Options.html
-	set(BUILD_FLAGS "-Wall")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wall")
 	set(BUILD_FLAGS "${BUILD_FLAGS} -fmax-errors=1")
 	set(BUILD_FLAGS "${BUILD_FLAGS} -Wfatal-errors")
 	set(BUILD_FLAGS "${BUILD_FLAGS} -Wextra")
@@ -57,6 +53,11 @@ else()
 	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wshadow")
 endif()
 
+# Remove compiler Warnings from VMA...
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-missing-field-initializers")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-type-limits")
+	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unused-variable")
+	
 # Address Sanitizer
 if(ADDRESS_SANITIZER)
 	if(WIN32)
@@ -67,32 +68,10 @@ endif()
 
 # CCACHE
 if(USE_CCACHE)
-    find_program(CCACHE_FOUND ccache)
-    if(CCACHE_FOUND)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    endif(CCACHE_FOUND)
-endif()
-
-# Output Directories
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/debug")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/debug")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/release")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/release")
-set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
-set(CMAKE_SHARED_MODULE_PREFIX_CXX "")
-SET(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
-SET(CMAKE_MINSIZEREL_POSTFIX "" CACHE STRING "" FORCE)
-SET(CMAKE_RELWITHDEBINFO_POSTFIX "" CACHE STRING "" FORCE)
-
-# Release / Debug
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-	set(DEBUG 1)
-	set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
-	add_definitions(-D_DEBUG)
-else()
-	set(RELEASE 1)
-	set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
-	add_definitions(-D_RELEASE)
+	find_program(CCACHE_FOUND ccache)
+	if(CCACHE_FOUND)
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+	endif(CCACHE_FOUND)
 endif()
 
 
@@ -107,9 +86,11 @@ if(COMPILE_GLFW)
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_VULKAN_STATIC OFF CACHE BOOL "" FORCE)
 	add_subdirectory("${PROJECT_SOURCE_DIR}/src/v4d/xvk/glfw")
+	target_compile_definitions(glfw PRIVATE UNICODE WINVER=0x0A00)
 else()
-	find_package(glfw3 3.3 REQUIRED)
+	find_package(glfw3 3.3.2 REQUIRED)
 endif()
 
 
@@ -144,7 +125,7 @@ if(COMPILE_APP)
 		PRIVATE -D_V4D_PROJECT
 	)
 	set_target_properties(${APP_NAME}
-		PROPERTIES 
+		PROPERTIES
 			COMPILE_FLAGS ${BUILD_FLAGS}
 			LINK_FLAGS "-Wl,-rpath,./"
 	)

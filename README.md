@@ -6,7 +6,7 @@ This is a minimal version of the **v4d_project** repository
 ```bash
 # from project parent directory
 git clone --recursive git@github.com:Vulkan4D/v4d_project_minimal.git
-cd v4d_project
+cd v4d_project_minimal
 tools/cleanbuild.sh
 ```
 Unit tests will run after the build

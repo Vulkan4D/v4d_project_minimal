@@ -99,7 +99,13 @@
         "__functional_base_03": "cpp",
         "*.inc": "cpp",
         "parentbad": "cpp",
-        "xvkinterface.c": "cpp"
+        "xvkinterface.c": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp",
+        "geometry": "cpp",
+        "*.def": "cpp"
     },
     "files.exclude": {
         "**/.git": true,
@@ -141,11 +147,10 @@
     "c-cpp-flylint.debug": false,
     "c-cpp-flylint.flexelint.enable": false,
     "c-cpp-flylint.clang.enable": true,
-    "c-cpp-flylint.clang.standard": ["c++17"],
+    "c-cpp-flylint.clang.standard": ["c++20"],
     "c-cpp-flylint.standard":[
-        "c++17"
+        "c++20"
     ],
-    "glsllint.glslangValidatorPath": "/usr/bin/glslangValidator",
     "terminal.integrated.scrollback": 20000,
     "terminal.integrated.rendererType": "dom",
     "editor.suggestOnTriggerCharacters": false,
@@ -153,4 +158,8 @@
     "editor.acceptSuggestionOnEnter": "on",
     "editor.trimAutoWhitespace": false,
     "cmake.configureOnOpen": true,
+    "git.ignoreLimitWarning": true,
+    "glsllint.glslangValidatorArgs": "--relaxed-errors",
+    "glsllint.linkShader": false,
+    "glsllint.useIncludeDirOfFile": false,
 }

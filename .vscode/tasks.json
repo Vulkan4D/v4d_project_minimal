@@ -6,14 +6,42 @@
         {
             "label": "quick build",
             "type": "shell",
-            "command": "clear; cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . --parallel 8",
+            "command": "clear; cd build && cmake --build . --parallel 8",
             "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
             "group": "build"
         },
         {
-            "label": "cmake reset",
+            "label": "quick build windows debug",
             "type": "shell",
-            "command": "clear; cd build && rm -f CMakeCache.txt debug/tests debug/demo;",
+            "command": "clear; crosscompile/windows/build.sh && crosscompile/windows/send.sh debug",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "quick build all platforms debug",
+            "type": "shell",
+            "command": "clear; crosscompile/windows/build.sh && crosscompile/windows/send.sh debug && cd build && cmake --build . --parallel 8",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "quick build windows debug & run demo remotely",
+            "type": "shell",
+            "command": "clear; crosscompile/windows/build.sh && crosscompile/windows/send.sh debug && crosscompile/windows/run.sh debug demo",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "quick build windows debug & run tests remotely",
+            "type": "shell",
+            "command": "clear; crosscompile/windows/build.sh && crosscompile/windows/send.sh debug && crosscompile/windows/run_console.sh debug tests",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "test"
+        },
+        {
+            "label": "cmake cleanup & reset debug",
+            "type": "shell",
+            "command": "clear; cd build && rm -rf * ../crosscompile/windows/build/*; cmake -DCMAKE_BUILD_TYPE=Debug .. ; ../crosscompile/windows/cmake.sh Debug",
             "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
             "group": "build"
         },
@@ -39,16 +67,23 @@
             "group": "build"
         },
         {
+            "label": "clean build all platforms & send package",
+            "type": "shell",
+            "command": "clear; tools/cleanbuild.sh windows && workspace/sendReleasePackage.sh",
+            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
+            "group": "build"
+        },
+        {
             "label": "unit tests linux",
             "type": "shell",
-            "command": "clear; cd build && rm -f CMakeCache.txt && cmake .. -DCMAKE_BUILD_TYPE=Debug && cmake --build . --parallel 8 && cd debug && ./tests",
+            "command": "clear; cd build && cmake --build . --parallel 8 && cd debug && ./tests",
             "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
             "group": "test"
         },
         {
-            "label": "unit tests windows",
+            "label": "send package",
             "type": "shell",
-            "command": "clear; cd build && rm -f CMakeCache.txt && ../crosscompile/windows/build.sh Debug && ssh WINDOWS_PC \"START /wait taskkill /f /im tests.exe\" && scp -rq debug/* WINDOWS_PC:/v4d_build/debug/ && ssh WINDOWS_PC \"cd /v4d_build/debug/ && tests.exe\"",
+            "command": "clear; workspace/sendReleasePackage.sh",
             "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
             "group": "test"
         },
@@ -56,7 +91,6 @@
             "label": "Profile demo",
             "type": "shell",
             "command": "clear; cd build/debug; rm callgrind.out.*; valgrind --tool=callgrind ./demo; kcachegrind `ls callgrind.out.*`",
-            "problemMatcher": {"base":"$gcc","fileLocation":"absolute"},
         },
     ]
 }
