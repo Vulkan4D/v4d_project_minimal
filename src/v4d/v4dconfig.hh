@@ -4,6 +4,7 @@
 // #define EVENT_DEFINITIONS_VARIADIC
 
 // Vulkan configuration
+#define V4D_RENDERER_FRAMEBUFFERS_MAX_FRAMES 3
 #define V4D_VULKAN_VALIDATION_ABORT_ON_ERROR
 #define V4D_VULKAN_USE_VMA
 // #define V4D_VULKAN_USE_VALIDATION_LAYERS // automatically enabled on linux in debug mode
