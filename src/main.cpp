@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <sstream>
 
 #include <v4d.h>
