@@ -141,7 +141,7 @@ if(COMPILE_TESTS)
 		v4d
 	)
 	target_compile_definitions(tests
-		PRIVATE -D_V4D_PROJECT
+		PRIVATE -D_V4D_PROJECT -D_V4D_TESTS
 	)
 	set_target_properties(tests 
 		PROPERTIES 

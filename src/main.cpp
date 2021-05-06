@@ -25,17 +25,70 @@ class MyRenderer : public v4d::graphics::Renderer {
 
 	// Base Constructor
 	using v4d::graphics::Renderer::Renderer;
-
+	
 	// Vulkan device setup
+	virtual void ConfigureDeviceExtensions() override {
+		// Device Extensions
+		OptionalDeviceExtension(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
+		OptionalDeviceExtension(VK_KHR_16BIT_STORAGE_EXTENSION_NAME);
+		if (v4d::graphics::vulkan::Loader::VULKAN_API_VERSION >= VK_API_VERSION_1_2) {
+			OptionalDeviceExtension(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+			// RayTracing extensions
+			OptionalDeviceExtension(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+			OptionalDeviceExtension(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+			OptionalDeviceExtension(VK_KHR_RAY_QUERY_EXTENSION_NAME);
+			OptionalDeviceExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME);
+			OptionalDeviceExtension(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+			OptionalDeviceExtension(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME);
+		}
+	}
 	virtual void ScorePhysicalDeviceSelection(int& score, v4d::graphics::PhysicalDevice* device) {}
-	virtual void ConfigureDeviceExtensions() override {}
-	virtual void ConfigureDeviceFeatures(v4d::graphics::PhysicalDevice::DeviceFeatures* deviceFeaturesToEnable, const v4d::graphics::PhysicalDevice::DeviceFeatures* supportedDeviceFeatures) override {}
+	virtual void ConfigureDeviceFeatures(v4d::graphics::PhysicalDevice::DeviceFeatures* deviceFeaturesToEnable, const v4d::graphics::PhysicalDevice::DeviceFeatures* availableDeviceFeatures) override {
+		V4D_ENABLE_DEVICE_FEATURES(
+			deviceFeatures2.features.shaderFloat64,
+			deviceFeatures2.features.shaderInt64,
+			deviceFeatures2.features.shaderInt16,
+			deviceFeatures2.features.depthClamp,
+			deviceFeatures2.features.fillModeNonSolid,
+			deviceFeatures2.features.geometryShader,
+			deviceFeatures2.features.wideLines,
+			deviceFeatures2.features.largePoints,
+			deviceFeatures2.features.shaderTessellationAndGeometryPointSize,
+			shaderClockFeatures.shaderDeviceClock,
+			shaderClockFeatures.shaderSubgroupClock,
+			_16bitStorageFeatures.storageBuffer16BitAccess
+		)
+		// Vulkan 1.2
+		if (v4d::graphics::vulkan::Loader::VULKAN_API_VERSION >= VK_API_VERSION_1_2) {
+			V4D_ENABLE_DEVICE_FEATURES(
+				vulkan12DeviceFeatures.bufferDeviceAddress,
+				vulkan12DeviceFeatures.shaderFloat16,
+				vulkan12DeviceFeatures.shaderInt8,
+				vulkan12DeviceFeatures.descriptorIndexing,
+				vulkan12DeviceFeatures.storageBuffer8BitAccess,
+				vulkan12DeviceFeatures.shaderOutputLayer,
+				// Ray-tracing features
+				accelerationStructureFeatures.accelerationStructure,
+				accelerationStructureFeatures.descriptorBindingAccelerationStructureUpdateAfterBind,
+				rayTracingPipelineFeatures.rayTracingPipeline,
+				rayTracingPipelineFeatures.rayTracingPipelineTraceRaysIndirect,
+				rayQueryFeatures.rayQuery
+			)
+		} else {
+			LOG_WARN("Vulkan 1.2 is not supported")
+		}
+	}
 	
 	// Renderer configuration
 	virtual void ConfigureRenderer() override {}
 	virtual void ConfigureLayouts() override {}
 	virtual void ConfigureShaders() override {
 		triangleShader.SetData(3);
+		#ifdef _DEBUG
+			WatchModifiedShadersForReload({
+				{"assets/shaders/triangle.meta", {&triangleShader}}
+			});
+		#endif
 	}
 	virtual void ReadShaders() override {
 		triangleShader.ReadShaders();
@@ -101,9 +154,9 @@ public:
 
 	// Render Commands
 	virtual void Render() override {
+		if(!BeginFrame(renderSemaphore[currentFrame])) return;
 		
 		// Frame Synchronization
-		AquireNextImage(renderSemaphore[currentFrame]);
 		WaitForFence(frameFence[currentFrame]);
 		
 		// Render
@@ -132,7 +185,7 @@ public:
 		);
 	
 		// Present on screen
-		Present({presentSemaphore[currentFrame]});
+		EndFrame({presentSemaphore[currentFrame]});
 	}
 };
 
@@ -149,6 +202,11 @@ int main(const int argc, const char** argv) {
 	// Create a window
 	v4d::graphics::Window window("TEST", 1280, 720);
 	
+	// Create a Renderer (vulkan instance)
+	window.FillRequiredVulkanInstanceExtensions(vulkanLoader.requiredInstanceExtensions);
+	MyRenderer renderer(&vulkanLoader, "V4D minimal project", VK_MAKE_VERSION(1, 0, 0));
+	renderer.InitRenderer();
+	
 	// Input callbacks
 	window.AddKeyCallback("default", [&](int key, int scancode, int action, int mods){
 		switch (key) {
@@ -156,13 +214,14 @@ int main(const int argc, const char** argv) {
 			case GLFW_KEY_ESCAPE:
 				window.Close();
 				break;
+			// Reload renderer
+			case GLFW_KEY_R:
+				if (action == GLFW_PRESS) {
+					renderer.RunSynchronized([&renderer](){renderer.ReloadRenderer();});
+				}
+				break;
 		}
 	});
-	
-	// Create a Renderer (vulkan instance)
-	window.FillRequiredVulkanInstanceExtensions(vulkanLoader.requiredInstanceExtensions);
-	MyRenderer renderer(&vulkanLoader, "V4D minimal project", VK_MAKE_VERSION(1, 0, 0));
-	renderer.InitRenderer();
 	
 	// Create presentation surface
 	renderer.AssignSurface(window.CreateVulkanSurface(renderer.handle));

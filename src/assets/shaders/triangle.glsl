@@ -1,9 +1,9 @@
 #shader vert
 
 const vec2 pos[3] = {
-	vec2(-0.4, +0.6),
-	vec2(+0.4, +0.6),
-	vec2(0, -0.6)
+	vec2(+0.4, -0.6),
+	vec2(-0.4, -0.6),
+	vec2(0, +0.6)
 };
 
 const vec3 col[3] = {
