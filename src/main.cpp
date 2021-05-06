@@ -26,7 +26,7 @@ class MyRenderer : public v4d::graphics::Renderer {
 	// Base Constructor
 	using v4d::graphics::Renderer::Renderer;
 	
-	// Vulkan device setup
+	// Vulkan device setup (all of these extensions and features are not used in this example, they may be removed)
 	virtual void ConfigureDeviceExtensions() override {
 		// Device Extensions
 		OptionalDeviceExtension(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
