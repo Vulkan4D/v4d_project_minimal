@@ -20,7 +20,7 @@ class MyRenderer : public v4d::graphics::Renderer {
 
 	// Render Pipelines, Shaders, Render passes
 	v4d::graphics::vulkan::PipelineLayout renderPipelineLayout;
-	v4d::graphics::vulkan::RasterShaderPipeline triangleShader {renderPipelineLayout, {"assets/shaders/triangle.vert", "assets/shaders/triangle.frag"}};
+	v4d::graphics::vulkan::RasterShaderPipeline triangleShader {renderPipelineLayout, "assets/shaders/triangle"};
 	v4d::graphics::vulkan::RenderPass renderPass;
 
 	// Base Constructor
@@ -86,7 +86,7 @@ class MyRenderer : public v4d::graphics::Renderer {
 		triangleShader.SetData(3);
 		#ifdef _DEBUG
 			WatchModifiedShadersForReload({
-				{"assets/shaders/triangle.meta", {&triangleShader}}
+				triangleShader,
 			});
 		#endif
 	}
