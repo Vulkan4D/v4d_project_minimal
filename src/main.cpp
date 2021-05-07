@@ -17,143 +17,65 @@ class MyRenderer : public v4d::graphics::Renderer {
 
 	// Command buffers
 	FrameBuffered_CommandBuffer commandBuffer;
-
-	// Render Pipelines, Shaders, Render passes
+	
+	// Pipeline Layouts
 	v4d::graphics::vulkan::PipelineLayout renderPipelineLayout;
-	v4d::graphics::vulkan::RasterShaderPipeline triangleShader {renderPipelineLayout, "assets/shaders/triangle"};
+
+	// Render passes
 	v4d::graphics::vulkan::RenderPass renderPass;
+	
+	// Shaders
+	v4d::graphics::vulkan::RasterShaderPipeline triangleShader {&renderPipelineLayout, "assets/shaders/triangle"};
 
 	// Base Constructor
 	using v4d::graphics::Renderer::Renderer;
 	
-	// Vulkan device setup (all of these extensions and features are not used in this example, they may be removed)
-	virtual void ConfigureDeviceExtensions() override {
-		// Device Extensions
-		OptionalDeviceExtension(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
-		OptionalDeviceExtension(VK_KHR_16BIT_STORAGE_EXTENSION_NAME);
-		if (v4d::graphics::vulkan::Loader::VULKAN_API_VERSION >= VK_API_VERSION_1_2) {
-			OptionalDeviceExtension(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
-			// RayTracing extensions
-			OptionalDeviceExtension(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
-			OptionalDeviceExtension(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
-			OptionalDeviceExtension(VK_KHR_RAY_QUERY_EXTENSION_NAME);
-			OptionalDeviceExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME);
-			OptionalDeviceExtension(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
-			OptionalDeviceExtension(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME);
-		}
-	}
-	virtual void ScorePhysicalDeviceSelection(int& score, v4d::graphics::PhysicalDevice* device) {}
-	virtual void ConfigureDeviceFeatures(v4d::graphics::PhysicalDevice::DeviceFeatures* deviceFeaturesToEnable, const v4d::graphics::PhysicalDevice::DeviceFeatures* availableDeviceFeatures) override {
-		V4D_ENABLE_DEVICE_FEATURES(
-			deviceFeatures2.features.shaderFloat64,
-			deviceFeatures2.features.shaderInt64,
-			deviceFeatures2.features.shaderInt16,
-			deviceFeatures2.features.depthClamp,
-			deviceFeatures2.features.fillModeNonSolid,
-			deviceFeatures2.features.geometryShader,
-			deviceFeatures2.features.wideLines,
-			deviceFeatures2.features.largePoints,
-			deviceFeatures2.features.shaderTessellationAndGeometryPointSize,
-			shaderClockFeatures.shaderDeviceClock,
-			shaderClockFeatures.shaderSubgroupClock,
-			_16bitStorageFeatures.storageBuffer16BitAccess
-		)
-		// Vulkan 1.2
-		if (v4d::graphics::vulkan::Loader::VULKAN_API_VERSION >= VK_API_VERSION_1_2) {
-			V4D_ENABLE_DEVICE_FEATURES(
-				vulkan12DeviceFeatures.bufferDeviceAddress,
-				vulkan12DeviceFeatures.shaderFloat16,
-				vulkan12DeviceFeatures.shaderInt8,
-				vulkan12DeviceFeatures.descriptorIndexing,
-				vulkan12DeviceFeatures.storageBuffer8BitAccess,
-				vulkan12DeviceFeatures.shaderOutputLayer,
-				// Ray-tracing features
-				accelerationStructureFeatures.accelerationStructure,
-				accelerationStructureFeatures.descriptorBindingAccelerationStructureUpdateAfterBind,
-				rayTracingPipelineFeatures.rayTracingPipeline,
-				rayTracingPipelineFeatures.rayTracingPipelineTraceRaysIndirect,
-				rayQueryFeatures.rayQuery
-			)
-		} else {
-			LOG_WARN("Vulkan 1.2 is not supported")
-		}
-	}
+	// Vulkan device setup
+	void ConfigureDeviceExtensions() override {}
+	void ScorePhysicalDeviceSelection(int& score, v4d::graphics::PhysicalDevice* device) override {}
+	void ConfigureDeviceFeatures(v4d::graphics::PhysicalDevice::DeviceFeatures* deviceFeaturesToEnable, const v4d::graphics::PhysicalDevice::DeviceFeatures* availableDeviceFeatures) override {}
 	
 	// Renderer configuration
-	virtual void ConfigureRenderer() override {}
-	virtual void ConfigureLayouts() override {}
-	virtual void ConfigureShaders() override {
+	void ConfigureRenderer() override {}
+	void ConfigureLayouts() override {}
+	
+	// Shaders
+	void ConfigureShaders() override {
 		triangleShader.SetData(3);
+		triangleShader.SetColorBlendAttachmentStates(1);
 		#ifdef _DEBUG
 			WatchModifiedShadersForReload({
 				triangleShader,
 			});
 		#endif
 	}
-	virtual void ReadShaders() override {
-		triangleShader.ReadShaders();
-	}
 
-	// Command buffers
-	virtual void CreateCommandBuffers() override {
-		commandBuffer.Allocate(renderingDevice);
-	}
-	virtual void DestroyCommandBuffers() override {
-		commandBuffer.Free(renderingDevice);
-	}
-
-	// Synchronization objects
-	virtual void CreateSyncObjects() override {
-		renderSemaphore.Create(renderingDevice);
-		presentSemaphore.Create(renderingDevice);
-		frameFence.Create(renderingDevice);
-	}
-	virtual void DestroySyncObjects() override {
-		renderSemaphore.Destroy(renderingDevice);
-		presentSemaphore.Destroy(renderingDevice);
-		frameFence.Destroy(renderingDevice);
-	}
-
-	// Resources & Buffers
-	virtual void CreateResources() override {}
-	virtual void DestroyResources() override {}
-	virtual void AllocateBuffers() override {}
-	virtual void FreeBuffers() override {}
-
-	// Pipelines
-	virtual void CreatePipelines() override {
-		// Pipeline layout
-		renderPipelineLayout.Create(renderingDevice);
-		
-		// FrameBuffers
-		renderPass.SetFrameBufferCount(swapChain->images.size());
+	// Render passes
+	void ConfigureRenderPasses() override {
+		renderPass.ConfigureFrameBuffers(swapChain);
 		
 		// Fragment shader output attachments
 		uint32_t out_color = renderPass.AddAttachment(swapChain);
 		
 		// SubPasses
 		v4d::graphics::vulkan::RenderPass::Subpass subpass {};
-			subpass.colorAttachments = renderPass.AddColorAttachmentRefs({{out_color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}});
+			subpass.colorAttachments = renderPass.AddColorAttachmentRefs({
+				{out_color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}
+			});
 		renderPass.AddSubpass(subpass, VK_SUBPASS_EXTERNAL);
 		
-		// Create the render pass
-		renderPass.Create(renderingDevice, swapChain->extent.width, swapChain->extent.height);
-		
 		// Shaders
-		triangleShader.SetRenderPass(swapChain, renderPass.handle);
-		triangleShader.AddColorBlendAttachmentState();
-		triangleShader.CreatePipeline(renderingDevice);
+		renderPass.AddShader(&triangleShader, swapChain);
 	}
-	virtual void DestroyPipelines() override {
-		triangleShader.DestroyPipeline(renderingDevice);
-		renderPass.Destroy();
-		renderPipelineLayout.Destroy(renderingDevice);
-	}
+	
+	// Resources
+	void AllocateResources() override {}
+	void FreeResources() override {}
 
 public:
 
 	// Render Commands
-	virtual void Render() override {
+	void Render() override {
 		if(!BeginFrame(renderSemaphore[currentFrame])) return;
 		
 		// Frame Synchronization

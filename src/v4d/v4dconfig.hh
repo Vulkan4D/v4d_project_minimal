@@ -10,6 +10,8 @@
 // #define V4D_VULKAN_USE_VALIDATION_LAYERS // automatically enabled on linux in debug mode
 // #define V4D_VULKAN_NO_VALIDATION_LAYERS
 
+#define COMMON_OBJECTS_ENABLE_FLEXIBLE_PTR_OFFSET
+
 // #define XVK_USE_QT_VULKAN_LOADER // uncomment if using Qt
 #define XVK_INCLUDE_GLFW // comment if using Qt or another window context manager
 
