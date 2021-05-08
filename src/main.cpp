@@ -5,27 +5,25 @@
 #include <utilities/graphics/vulkan/Loader.h>
 #include <utilities/graphics/Window.h>
 #include <utilities/graphics/Renderer.h>
-#include <utilities/graphics/vulkan/RasterShaderPipeline.h>
-#include <utilities/graphics/vulkan/RenderPass.h>
 
 class MyRenderer : public v4d::graphics::Renderer {
 	
 	// Synchronization objects
-	FrameBuffered_Semaphore renderSemaphore;
-	FrameBuffered_Semaphore presentSemaphore;
-	FrameBuffered_Fence frameFence;
+	FrameBufferedObject<v4d::graphics::vulkan::SemaphoreObject> renderSemaphore;
+	FrameBufferedObject<v4d::graphics::vulkan::SemaphoreObject> presentSemaphore;
+	FrameBufferedObject<v4d::graphics::vulkan::FenceObject> frameFence;
 
 	// Command buffers
-	FrameBuffered_CommandBuffer commandBuffer;
+	FrameBufferedObject<v4d::graphics::vulkan::CommandBufferObject> commandBuffer;
 	
 	// Pipeline Layouts
-	v4d::graphics::vulkan::PipelineLayout renderPipelineLayout;
+	v4d::graphics::vulkan::PipelineLayoutObject renderPipelineLayout;
 
 	// Render passes
-	v4d::graphics::vulkan::RenderPass renderPass;
+	v4d::graphics::vulkan::RenderPassObject renderPass;
 	
 	// Shaders
-	v4d::graphics::vulkan::RasterShaderPipeline triangleShader {&renderPipelineLayout, "assets/shaders/triangle"};
+	v4d::graphics::vulkan::RasterShaderPipelineObject triangleShader {&renderPipelineLayout, "assets/shaders/triangle"};
 
 	// Base Constructor
 	using v4d::graphics::Renderer::Renderer;
@@ -58,7 +56,7 @@ class MyRenderer : public v4d::graphics::Renderer {
 		uint32_t out_color = renderPass.AddAttachment(swapChain);
 		
 		// SubPasses
-		v4d::graphics::vulkan::RenderPass::Subpass subpass {};
+		v4d::graphics::vulkan::RenderPassObject::Subpass subpass {};
 			subpass.colorAttachments = renderPass.AddColorAttachmentRefs({
 				{out_color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}
 			});
