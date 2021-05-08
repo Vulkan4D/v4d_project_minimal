@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Vulkan4D Project Build Template 0.6
+# Vulkan4D Project Build Template 0.7
 ###########################################################################################
 # Project Setup
 
@@ -17,6 +17,7 @@ option(COMPILE_GLFW "Compile GLFW from source instead of linking with installed 
 option(COMPILE_V4D_CORE "Compile Vulkan4D Core library from source" ON)
 option(COMPILE_V4D_MODULES "Compile all Vulkan4D Modules from source" ON)
 option(COMPILE_ASSETS "Compile all assets" ON)
+option(MODULES_LINK_WITH_V4D_CORE "Link all modules with v4d.dll/v4d.so" ON)
 option(USE_CCACHE "Use ccache" ON)
 option(ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
 
@@ -25,42 +26,6 @@ set(V4D_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(V4D_PROJECT_BUILD_DIR "${V4D_PROJECT_DIR}/build")
 include("${V4D_PROJECT_DIR}/src/v4d/core/global_build_config.cmake")
 
-# Compiler Warnings
-if(WIN32)
-	set(BUILD_FLAGS "${BUILD_FLAGS} -W")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-cast-function-type")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-attribute-warning")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-invalid-offsetof")
-else()
-	# Warnings		https://gcc.gnu.org/onlinedocs/gcc-9.2.0/gcc/Warning-Options.html
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wall")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -fmax-errors=1")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wfatal-errors")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wextra")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wunused")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wnon-virtual-dtor")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wcast-align")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Woverloaded-virtual")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wnull-dereference")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wpessimizing-move")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wredundant-move")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wlogical-op")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wdisabled-optimization")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wfloat-conversion")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unused-parameter")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-sign-compare")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unknown-pragmas")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-invalid-offsetof")
-	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wconversion")
-	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wsign-conversion")
-	# set(BUILD_FLAGS "${BUILD_FLAGS} -Wshadow")
-endif()
-
-# Remove compiler Warnings from VMA...
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-missing-field-initializers")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-type-limits")
-	set(BUILD_FLAGS "${BUILD_FLAGS} -Wno-unused-variable")
-	
 # Address Sanitizer
 if(ADDRESS_SANITIZER)
 	if(WIN32)
