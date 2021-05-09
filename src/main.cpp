@@ -19,12 +19,12 @@ class MyRenderer : public v4d::graphics::Renderer {
 	// Pipeline Layouts
 	v4d::graphics::vulkan::PipelineLayoutObject renderPipelineLayout;
 
-	// Render passes
-	v4d::graphics::vulkan::RenderPassObject renderPass;
-	
 	// Shaders
 	v4d::graphics::vulkan::RasterShaderPipelineObject triangleShader {&renderPipelineLayout, "assets/shaders/triangle"};
 
+	// Render passes
+	v4d::graphics::vulkan::RenderPassObject renderPass;
+	
 	// Base Constructor
 	using v4d::graphics::Renderer::Renderer;
 	
@@ -86,7 +86,7 @@ public:
 				renderPass.Begin(cmdBuffer, swapChainImageIndex);
 				
 					// Draw triangle
-					triangleShader.Execute(renderingDevice, cmdBuffer);
+					triangleShader.Execute(cmdBuffer);
 					
 				renderPass.End(cmdBuffer);
 				
