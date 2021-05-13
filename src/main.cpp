@@ -67,8 +67,11 @@ class MyRenderer : public v4d::graphics::Renderer {
 	}
 	
 	// Resources
+	void FillBuffers() override {}
 	void AllocateResources() override {}
 	void FreeResources() override {}
+	void LoadScene() override {}
+	void UnloadScene() override {}
 
 public:
 
@@ -86,7 +89,7 @@ public:
 				renderPass.Begin(cmdBuffer, swapChainImageIndex);
 				
 					// Draw triangle
-					triangleShader.Execute(cmdBuffer);
+					triangleShader.Execute(currentFrame, cmdBuffer);
 					
 				renderPass.End(cmdBuffer);
 				

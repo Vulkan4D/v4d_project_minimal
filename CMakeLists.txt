@@ -90,7 +90,7 @@ if(COMPILE_APP)
 		v4d
 	)
 	target_compile_definitions(${APP_NAME}
-		PRIVATE -D_V4D_PROJECT
+		PRIVATE -D_V4D_APP
 	)
 	set_target_properties(${APP_NAME}
 		PROPERTIES
@@ -109,7 +109,7 @@ if(COMPILE_TESTS)
 		v4d
 	)
 	target_compile_definitions(tests
-		PRIVATE -D_V4D_PROJECT -D_V4D_TESTS
+		PRIVATE -D_V4D_APP -D_V4D_TESTS
 	)
 	set_target_properties(tests 
 		PROPERTIES 
