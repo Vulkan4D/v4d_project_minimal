@@ -9,12 +9,12 @@
 class MyRenderer : public v4d::graphics::Renderer {
 	
 	// Synchronization objects
-	FrameBufferedObject<v4d::graphics::vulkan::SemaphoreObject> renderSemaphore;
-	FrameBufferedObject<v4d::graphics::vulkan::SemaphoreObject> presentSemaphore;
-	FrameBufferedObject<v4d::graphics::vulkan::FenceObject> frameFence;
+	v4d::graphics::FramebufferedObject<v4d::graphics::vulkan::SemaphoreObject> renderSemaphore;
+	v4d::graphics::FramebufferedObject<v4d::graphics::vulkan::SemaphoreObject> presentSemaphore;
+	v4d::graphics::FramebufferedObject<v4d::graphics::vulkan::FenceObject> frameFence;
 
 	// Command buffers
-	FrameBufferedObject<v4d::graphics::vulkan::CommandBufferObject> commandBuffer;
+	v4d::graphics::FramebufferedObject<v4d::graphics::vulkan::CommandBufferObject> commandBuffer;
 	
 	// Pipeline Layouts
 	v4d::graphics::vulkan::PipelineLayoutObject renderPipelineLayout;
@@ -39,7 +39,6 @@ class MyRenderer : public v4d::graphics::Renderer {
 	
 	// Shaders
 	void ConfigureShaders() override {
-		triangleShader.SetData(3);
 		triangleShader.SetColorBlendAttachmentStates(1);
 		#ifdef _DEBUG
 			WatchModifiedShadersForReload({
@@ -50,7 +49,7 @@ class MyRenderer : public v4d::graphics::Renderer {
 
 	// Render passes
 	void ConfigureRenderPasses() override {
-		renderPass.ConfigureFrameBuffers(swapChain);
+		renderPass.ConfigureFramebuffers(swapChain);
 		
 		// Fragment shader output attachments
 		uint32_t out_color = renderPass.AddAttachment(swapChain);
@@ -67,11 +66,11 @@ class MyRenderer : public v4d::graphics::Renderer {
 	}
 	
 	// Resources
-	void FillBuffers() override {}
-	void AllocateResources() override {}
-	void FreeResources() override {}
+	void LoadBuffers() override {}
+	void UnloadBuffers() override {}
 	void LoadScene() override {}
 	void UnloadScene() override {}
+	void ConfigureImages(uint32_t, uint32_t) override {}
 
 public:
 
@@ -89,7 +88,8 @@ public:
 				renderPass.Begin(cmdBuffer, swapChainImageIndex);
 				
 					// Draw triangle
-					triangleShader.Execute(currentFrame, cmdBuffer);
+					triangleShader.Bind(cmdBuffer, currentFrame);
+					triangleShader.Draw(cmdBuffer);
 					
 				renderPass.End(cmdBuffer);
 				

@@ -11,3 +11,9 @@
 [submodule "src/v4d/xvk"]
 	path = src/v4d/xvk
 	url = git@github.com:Vulkan4D/xvk.git
+[submodule "src/stb"]
+	path = src/stb
+	url = git@github.com:nothings/stb.git
+[submodule "src/tinygltf"]
+	path = src/tinygltf
+	url = git@github.com:syoyo/tinygltf.git
